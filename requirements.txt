@@ -1,0 +1,2 @@
+symphony-bdk-python>=2.0b6
+Jinja2~=3.0

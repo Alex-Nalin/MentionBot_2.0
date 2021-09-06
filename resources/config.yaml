@@ -1,0 +1,72 @@
+host: develop2.symphony.com
+
+bot:
+  username: NewBoss
+  privateKey:
+    path: 'rsa/privatekey.pem'
+
+
+#full config:
+
+#scheme: https
+#host: localhost.symphony.com
+#port: 8443
+#defaultHeaders:
+#  Connection: Keep-Alive
+#  Keep-Alive: timeout=5, max=1000
+#
+#proxy:
+#  host: proxy.symphony.com
+#  port: 1234
+#  username: proxyuser
+#  password: proxypassword
+#
+#pod:
+#  host: dev.symphony.com
+#  port: 443
+#
+#agent:
+#   host: dev-agent.symphony.com
+#   port: 5678
+#   proxy:
+#     host: agent-proxy
+#     port: 3396
+#
+#keyManager:
+#  host: dev-key.symphony.com
+#  port: 8444
+#  defaultHeaders:
+#    Connection: Keep-Alive
+#    Keep-Alive: close
+#
+#sessionAuth:
+#  host: dev-session.symphony.com
+#  port: 8444
+#
+#ssl:
+#  trustStore:
+#    path: /path/to/truststore.pem
+#
+#bot:
+#  username: bot-name
+#  privateKey:
+#    path: /path/to/bot/rsa-private-key.pem
+#
+#app:
+#  appId: app-id
+#  certificate:
+#    path: path/to/app-certificate.pem
+#
+#datafeed:
+#  version: v2
+#  retry:
+#    maxAttempts: 6
+#    initialIntervalMillis: 2000
+#    multiplier: 1.5
+#    maxIntervalMillis: 10000
+#
+#retry:
+#  maxAttempts: 6 # set '-1' for an infinite number of attempts, default value is '10'
+#  initialIntervalMillis: 2000
+#  multiplier: 1.5
+#  maxIntervalMillis: 10000
