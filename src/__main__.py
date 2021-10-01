@@ -2,6 +2,7 @@
 import asyncio
 import logging.config
 from pathlib import Path
+import yaml
 
 from symphony.bdk.core.activity.command import CommandContext
 from symphony.bdk.core.config.loader import BdkConfigLoader
@@ -12,25 +13,35 @@ from symphony.bdk.gen.agent_model.v4_message_sent import V4MessageSent
 
 from activities import EchoCommandActivity, GreetUserJoinedActivity
 from gif_activities import GifSlashCommand, GifFormReplyActivity
+from mention_activity import MentionCommandActivity
+
+from loader.config import conf
 
 # Configure logging
 current_dir = Path(__file__).parent.parent
 logging_conf = Path.joinpath(current_dir, 'resources', 'logging.conf')
+config_path = Path.joinpath(current_dir, 'resources', 'config.yaml')
 logging.config.fileConfig(logging_conf, disable_existing_loggers=False)
 
 
 async def run():
-    config = BdkConfigLoader.load_from_file(Path.joinpath(current_dir, 'resources', 'config.yaml'))
+    config = BdkConfigLoader.load_from_file(config_path)
+
+    # ## To read from the yaml file
+    # config_yaml = open(config_path)
+    # conf = yaml.load(config_yaml, Loader=yaml.FullLoader)
+
 
     async with SymphonyBdk(config) as bdk:
         datafeed_loop = bdk.datafeed()
         datafeed_loop.subscribe(MessageListener())
 
         activities = bdk.activities()
-        activities.register(EchoCommandActivity(bdk.messages()))
-        activities.register(GreetUserJoinedActivity(bdk.messages(), bdk.users()))
+        # activities.register(EchoCommandActivity(bdk.messages()))
+        # activities.register(GreetUserJoinedActivity(bdk.messages(), bdk.users()))
+        # activities.register(GifFormReplyActivity(bdk.messages()))
         activities.register(GifSlashCommand(bdk.messages()))
-        activities.register(GifFormReplyActivity(bdk.messages()))
+        activities.register(MentionCommandActivity(bdk.messages(),bdk.streams()))
 
         @activities.slash("/hello")
         async def hello(context: CommandContext):

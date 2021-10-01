@@ -2,8 +2,9 @@ host: develop2.symphony.com
 
 bot:
   username: NewBoss
+  id: 349026222358051
   privateKey:
-    path: 'rsa/privatekey.pem'
+    path: rsa/privatekey.pem
 
 
 #full config:
