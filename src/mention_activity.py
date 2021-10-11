@@ -10,13 +10,21 @@ class MentionCommandActivity(CommandActivity):
 
     command_name = "/all"
 
-    def __init__(self, messages: MessageService, streams: StreamService):
+    def __init__(self, messages: MessageService, streams: StreamService, users: UserService):
         self._messages = messages
         self._streams = streams
+        self._users = users
         super().__init__()
 
     def matches(self, context: CommandContext) -> bool:
-        return context.text_content.startswith("@" + context.bot_display_name + " " + self.command_name)
+        ## This is for @mention /all at the start of the string
+        # return context.text_content.startswith("@" + context.bot_display_name + " " + self.command_name)
+
+        ## This allows the @mention and /all to be placed anywhere in the text
+        if (("@" + context.bot_display_name) and self.command_name) in context.text_content:
+            return True
+        else:
+            return False
 
     async def on_activity(self, context: CommandContext):
         # text_to_echo = context.text_content[context.text_content.index(self.command_name) + len(self.command_name):]
@@ -37,15 +45,11 @@ class MentionCommandActivity(CommandActivity):
         stream_type = (await self._streams.get_stream(streamid))["stream_type"]["type"]
 
         if str(stream_type) == "IM":
-            #return self.bot_client.get_message_client().send_msg(streamid, dict(message="""<messageML>There is only you and me, """ + str(originator) + """ <emoji shortcode="smile" /></messageML>"""))
             IMmention = ("There is only you and me, " + str(originator) + " <emoji shortcode=\"smile\" />")
-            return await self._messages.send_message(context.stream_id, f"<messageML>{IMmention}</messageML>")
+            return await self._messages.send_message(streamid, f"<messageML>{IMmention}</messageML>")
 
         ## Room membership, also works for MIMs
         response = await self._streams.list_room_members(streamid)
-
-        # userId = str(response.value["id"])
-        # print(userId)
 
         counter = 0
         counterAtmentionedOnly = 0
@@ -59,11 +63,11 @@ class MentionCommandActivity(CommandActivity):
 
             userId = str(response.value[index]["id"])
 
-            # ## Check the member is not bot
-            # userInfo = (UserClient.get_user_from_id(self, userId))['accountType']
-            # print(userInfo)
+            # ## Check the member is not a service account/bot
+            # user_details = await self._users.get_user_detail(userId)
+            # accountype = user_details.user_attributes.account_type
 
-            if (str(userId) == str(from_user)) or (str(userId) == str(botuserid)):# or (str(userInfo) == "SYSTEM"):
+            if (str(userId) == str(from_user)) or (str(userId) == str(botuserid)):# or (str(accountype) == "SYSTEM"):
                 print("ignored ids")
                 #logging.debug("ignored ids")
             else:
@@ -76,11 +80,11 @@ class MentionCommandActivity(CommandActivity):
                     if once:
 
                         mention_card = "<card iconSrc =\"\" accent=\"tempo-bg-color--blue\"><header> Room @mentioned by " + str(originator) + "</header><body>" + mentions + "</body></card>"
-                        await self._messages.send_message(context.stream_id, f"<messageML>{mention_card}</messageML>")
+                        await self._messages.send_message(streamid, f"<messageML>{mention_card}</messageML>")
                         once = False
                     else:
                         mention_card = "<card iconSrc =\"\" accent=\"tempo-bg-color--blue\"><header></header><body>" + mentions + "</body></card>"
-                        await self._messages.send_message(context.stream_id, f"<messageML>{mention_card}</messageML>")
+                        await self._messages.send_message(streamid, f"<messageML>{mention_card}</messageML>")
 
                     counter = 0
                     mentions = ""
@@ -89,9 +93,9 @@ class MentionCommandActivity(CommandActivity):
                 elif thereIsMore and (int(totalUsersInRoom) == int(counterAtmentionedOnly) + 2):
                     #logging.debug("Displaying @mention for more users")
                     mention_card = "<card iconSrc =\"\" accent=\"tempo-bg-color--blue\"><header></header><body>" + mentions + "</body></card>"
-                    await self._messages.send_message(context.stream_id, f"<messageML>{mention_card}</messageML>")
+                    await self._messages.send_message(streamid, f"<messageML>{mention_card}</messageML>")
 
         if splitter == False:
             #logging.debug("Displaying @mention")
             mention_card = "<card iconSrc =\"\" accent=\"tempo-bg-color--blue\"><header> Room @mentioned by " + str(originator) + "</header><body>" + mentions + "</body></card>"
-            await self._messages.send_message(context.stream_id, f"<messageML>{mention_card}</messageML>")
+            await self._messages.send_message(streamid, f"<messageML>{mention_card}</messageML>")

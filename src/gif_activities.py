@@ -31,5 +31,4 @@ class GifFormReplyActivity(FormReplyActivity):
 
     async def on_activity(self, context: FormReplyContext):
         category = context.form_values["category"]
-        await self._messages.send_message(context.source_event.stream.stream_id,
-                                          f"<messageML>Category is {category}</messageML>")
+        await self._messages.send_message(context.source_event.stream.stream_id, f"<messageML>Category is {category}</messageML>")

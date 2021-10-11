@@ -11,7 +11,7 @@ from symphony.bdk.core.symphony_bdk import SymphonyBdk
 from symphony.bdk.gen.agent_model.v4_initiator import V4Initiator
 from symphony.bdk.gen.agent_model.v4_message_sent import V4MessageSent
 
-from activities import EchoCommandActivity, GreetUserJoinedActivity
+from activities import HelpCommandActivity, EchoCommandActivity, GreetUserJoinedActivity
 from gif_activities import GifSlashCommand, GifFormReplyActivity
 from mention_activity import MentionCommandActivity
 
@@ -40,8 +40,9 @@ async def run():
         # activities.register(EchoCommandActivity(bdk.messages()))
         # activities.register(GreetUserJoinedActivity(bdk.messages(), bdk.users()))
         # activities.register(GifFormReplyActivity(bdk.messages()))
+        activities.register(HelpCommandActivity(bdk.messages()))
         activities.register(GifSlashCommand(bdk.messages()))
-        activities.register(MentionCommandActivity(bdk.messages(),bdk.streams()))
+        activities.register(MentionCommandActivity(bdk.messages(), bdk.streams(), bdk.users()))
 
         @activities.slash("/hello")
         async def hello(context: CommandContext):
