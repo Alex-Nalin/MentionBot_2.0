@@ -1,2 +1,3 @@
-symphony-bdk-python>=2.0.0
+symphony-bdk-python>=2.6.0
 Jinja2~=3.0
+psutil~=5.9.4

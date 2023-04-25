@@ -2,79 +2,73 @@ from symphony.bdk.core.activity.command import CommandActivity, CommandContext
 from symphony.bdk.core.activity.user_joined_room import UserJoinedRoomActivity, UserJoinedRoomContext
 from symphony.bdk.core.service.message.message_service import MessageService
 from symphony.bdk.core.service.user.user_service import UserService
+from symphony.bdk.core.service.stream.stream_service import StreamService
+from loader.config import conf
+from src.audit import Audit
+import logging.config
+import asyncio
 
-
+audit_stream = conf.get("bot_audit")
 
 class HelpCommandActivity(CommandActivity):
     command_name = "/help"
 
-    def __init__(self, messages: MessageService):
+    def __init__(self, messages: MessageService, streams: StreamService):
         self._messages = messages
+        self._streams = streams
         super().__init__()
 
     def matches(self, context: CommandContext) -> bool:
-        return context.text_content.startswith("@" + context.bot_display_name + " " + self.command_name)
+        ## This is for @mention /all at the start of the string
+        # return context.text_content.startswith("@" + context.bot_display_name + " " + self.command_name)
+
+        ## This allows the @mention and /all to be placed anywhere in the text
+        if (("@" + context.bot_display_name) and self.command_name) in context.text_content:
+            return True
+        else:
+            return False
 
     async def on_activity(self, context: CommandContext):
+        asyncio.create_task(self.actual_logic(context))
 
-        displayHelp = "<card accent='tempo-bg-color--blue' iconSrc=''> \
-                            <header><h2>Bot Commands (v1.2)</h2></header> \
-                            <body> \
-                              <table style='max-width:100%'><thead><tr style='background-color:#4D94FF;color:#ffffff;font-size:1rem' class=\"tempo-text-color--white tempo-bg-color--black\"> \
-                                    <td><b>Command</b></td> \
-                                    <td><b>Description</b></td> \
-                                  </tr> \
-                                </thead> \
-                                <tbody> \
-                                  <tr> \
-                                    <td>@" + context.bot_display_name + " /all</td> \
-                                    <td>At Mention all users of the stream</td> \
-                                  </tr> \
-                                <tr> \
-                                  <td>@" + context.bot_display_name + "  /whois</td> \
-                                  <td>followed by @mention or email address will give the user(s) details</td> \
-                                </tr> \
-                                <tr> \
-                                  <td>@" + context.bot_display_name + "  /status</td> \
-                                  <td>Shows how long the Mention Bot has been running for</td> \
-                                </tr> \
-                                </tbody> \
-                                </table> \
-                            </body> \
-                        </card>"
+    async def actual_logic(self, context):
+        streamid = context.stream_id
+        displayName = context.initiator.user.display_name
+        userid = context.initiator.user.user_id
+        stream_type = (await self._streams.get_stream(streamid))["stream_type"]["type"]
 
-        await self._messages.send_message(context.stream_id, f"<messageML>{displayHelp}</messageML>")
+        if audit_stream != "":
+            botaudit = "Function /help called by <b>" + str(displayName) + " " + str(userid) + " </b> in " + str(streamid) + " (" + str(stream_type)
+            await self._messages.send_message(audit_stream, f"<messageML>{botaudit}</messageML>")
 
-class EchoCommandActivity(CommandActivity):
-    """Example of a complex command that just echoes what is after @bot-name /echo
-    """
-    command_name = "/echo "
+        try:
 
-    def __init__(self, messages: MessageService):
-        self._messages = messages
-        super().__init__()
+            displayHelp = "<card accent='tempo-bg-color--blue' iconSrc=''> \
+                                <header><h2>Bot Commands (v1.2)</h2></header> \
+                                <body> \
+                                  <table style='max-width:100%'><thead><tr style='background-color:#4D94FF;color:#ffffff;font-size:1rem' class=\"tempo-text-color--white tempo-bg-color--black\"> \
+                                        <td><b>Command</b></td> \
+                                        <td><b>Description</b></td> \
+                                      </tr> \
+                                    </thead> \
+                                    <tbody> \
+                                      <tr> \
+                                        <td>@" + context.bot_display_name + " /all</td> \
+                                        <td>At Mention all users of the stream</td> \
+                                      </tr> \
+                                    <tr> \
+                                      <td>@" + context.bot_display_name + "  /status</td> \
+                                      <td>Shows how long the Mention Bot has been running for</td> \
+                                    </tr> \
+                                    </tbody> \
+                                    </table> \
+                                </body> \
+                            </card>"
 
-    def matches(self, context: CommandContext) -> bool:
-        return context.text_content.startswith("@" + context.bot_display_name + " " + self.command_name)
+            await self._messages.send_message(context.stream_id, f"<messageML>{displayHelp}</messageML>")
 
-    async def on_activity(self, context: CommandContext):
-        text_to_echo = context.text_content[context.text_content.index(self.command_name) + len(self.command_name):]
-        await self._messages.send_message(context.stream_id, f"<messageML>{text_to_echo}</messageML>")
-
-
-class GreetUserJoinedActivity(UserJoinedRoomActivity):
-    """Greets a user when joining a room
-    """
-
-    def __init__(self, messages: MessageService, users: UserService):
-        super().__init__()
-        self._messages = messages
-        self._users = users
-
-    def matches(self, context: UserJoinedRoomContext) -> bool:
-        return True
-
-    async def on_activity(self, context: UserJoinedRoomContext):
-        user_details = await self._users.get_user_detail(context.affected_user_id)
-        await self._messages.send_message(context.stream_id, f"<messageML>Hello {user_details.user_attributes.display_name}!</messageML>")
+        except Exception as ex:
+            logging.error("/status did not run")
+            logging.exception("Message Command Processor Exception: {}".format(ex))
+            await Audit.auditLoggingCommand(self, ex, context)
 

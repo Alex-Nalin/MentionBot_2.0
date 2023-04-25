@@ -1,10 +1,12 @@
 host: develop2.symphony.com
 
 bot:
-  username: NewBoss
-  id: 349026222358051
+  username: MentionBot
+  id: 349026222350942
   privateKey:
     path: rsa/privatekey.pem
+bot_audit: 56hhY6LjdAiWblYBE96Bpn___oNisVkhdA
+allowedPod : Symphony Partner Development, Symphony Preview Pod
 
 
 #full config:
