@@ -54,7 +54,7 @@ class MentionCommandActivity(CommandActivity):
                 splitter = False
                 thereIsMore = False
                 once = True
-                atMentionLimit = 4
+                atMentionLimit = 39
                 streamid = context.stream_id
                 from_user = context.initiator.user.user_id
                 originator = "<mention uid=\"" + str(from_user) + "\"/>"
