@@ -4,9 +4,9 @@ from symphony.bdk.core.service.datafeed.real_time_event_listener import RealTime
 from symphony.bdk.core.symphony_bdk import SymphonyBdk
 from symphony.bdk.gen.agent_model.v4_initiator import V4Initiator
 from symphony.bdk.gen.agent_model.v4_message_sent import V4MessageSent
-from activities import HelpCommandActivity
-from mention_activity import MentionCommandActivity
-from status_activity import StatusCommandActivity
+from src.activities import HelpCommandActivity
+from src.mention_activity import MentionCommandActivity
+from src.status_activity import StatusCommandActivity
 from loader.config import conf
 
 import asyncio
@@ -14,9 +14,9 @@ import logging.config
 from pathlib import Path
 
 # Configure logging
-current_dir = Path(__file__).parent.parent
-logging_conf = Path.joinpath(current_dir, 'resources', 'logging.conf')
-config_path = Path.joinpath(current_dir, 'resources', 'config.yaml')
+current_dir = Path(__file__).parent
+logging_conf = Path.joinpath(current_dir, './resources', 'logging.conf')
+config_path = Path.joinpath(current_dir, './resources', 'config.yaml')
 logging.config.fileConfig(logging_conf, disable_existing_loggers=False)
 
 audit_stream = conf.get("bot_audit")

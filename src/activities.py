@@ -44,7 +44,7 @@ class HelpCommandActivity(CommandActivity):
         try:
 
             displayHelp = "<card accent='tempo-bg-color--blue' iconSrc=''> \
-                                <header><h2>Bot Commands (v1.2)</h2></header> \
+                                <header><h2>Bot Commands (v2.0)</h2></header> \
                                 <body> \
                                   <table style='max-width:100%'><thead><tr style='background-color:#4D94FF;color:#ffffff;font-size:1rem' class=\"tempo-text-color--white tempo-bg-color--black\"> \
                                         <td><b>Command</b></td> \
