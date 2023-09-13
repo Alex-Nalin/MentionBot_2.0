@@ -26,7 +26,6 @@ async def run():
 
     async with SymphonyBdk(config) as bdk:
         datafeed_loop = bdk.datafeed()
-        datafeed_loop.subscribe(MessageListener())
 
         activities = bdk.activities()
         activities.register(HelpCommandActivity(bdk.messages(), bdk.streams()))
@@ -35,11 +34,6 @@ async def run():
 
         ## Start the datafeed read loop
         await datafeed_loop.start()
-
-class MessageListener(RealTimeEventListener):
-    async def on_message_sent(self, initiator: V4Initiator, event: V4MessageSent):
-        logging.debug("Message received from %s %s in %s %s: %s", initiator.user.display_name, initiator.user.user_id, event.message.stream.stream_id, event.message.stream.stream_type, event.message.message)
-
 
 ## Start the main asyncio run
 try:

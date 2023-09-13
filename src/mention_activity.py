@@ -48,6 +48,7 @@ class MentionCommandActivity(CommandActivity):
             if audit_stream != "":
                 botaudit = "Function /all called by <b>" + str(displayName) + " " + str(userid) + " </b> in " + str(streamid) + " (" + str(stream_type)
                 await self._messages.send_message(audit_stream, f"<messageML>{botaudit}</messageML>")
+                logging.debug(botaudit)
 
             try:
 
@@ -159,7 +160,7 @@ class MentionCommandActivity(CommandActivity):
                     logging.debug("Didnt Work")
 
             except Exception as ex:
-                logging.error("/status did not run")
+                logging.error("/all did not run")
                 logging.exception("Message Command Processor Exception: {}".format(ex))
                 await Audit.auditLoggingCommand(self, ex, context)
 

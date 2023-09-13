@@ -40,6 +40,7 @@ class HelpCommandActivity(CommandActivity):
         if audit_stream != "":
             botaudit = "Function /help called by <b>" + str(displayName) + " " + str(userid) + " </b> in " + str(streamid) + " (" + str(stream_type)
             await self._messages.send_message(audit_stream, f"<messageML>{botaudit}</messageML>")
+            logging.debug(botaudit)
 
         try:
 
@@ -53,11 +54,11 @@ class HelpCommandActivity(CommandActivity):
                                     </thead> \
                                     <tbody> \
                                       <tr> \
-                                        <td>@" + context.bot_display_name + " /all</td> \
+                                        <td>/all</td> \
                                         <td>At Mention all users of the stream</td> \
                                       </tr> \
                                     <tr> \
-                                      <td>@" + context.bot_display_name + "  /status</td> \
+                                      <td>/status</td> \
                                       <td>Shows how long the Mention Bot has been running for</td> \
                                     </tr> \
                                     </tbody> \
@@ -68,7 +69,7 @@ class HelpCommandActivity(CommandActivity):
             await self._messages.send_message(context.stream_id, f"<messageML>{displayHelp}</messageML>")
 
         except Exception as ex:
-            logging.error("/status did not run")
+            logging.error("/help did not run")
             logging.exception("Message Command Processor Exception: {}".format(ex))
             await Audit.auditLoggingCommand(self, ex, context)
 

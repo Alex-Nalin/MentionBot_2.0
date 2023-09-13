@@ -44,6 +44,7 @@ class StatusCommandActivity(CommandActivity):
             if audit_stream != "":
                 botaudit = "Function /status called by <b>" + str(displayName) + " " + str(userid) + " </b> in " + str(streamid) + " (" + str(stream_type)
                 await self._messages.send_message(audit_stream, f"<messageML>{botaudit}</messageML>")
+                logging.debug(botaudit)
 
             date2 = datetime.datetime.now()
             p = psutil.Process(os.getpid())
