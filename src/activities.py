@@ -22,8 +22,17 @@ class HelpCommandActivity(CommandActivity):
         ## This is for @mention /all at the start of the string
         # return context.text_content.startswith("@" + context.bot_display_name + " " + self.command_name)
 
+        mention = False
+        if ("@" + context.bot_display_name) in context.text_content:
+            mention = True
+
+        command = False
+        if self.command_name in context.text_content:
+            command = True
+
         ## This allows the @mention and /all to be placed anywhere in the text
-        if (("@" + context.bot_display_name) and self.command_name) in context.text_content:
+        # if (("@" + context.bot_display_name) and self.command_name) in context.text_content:
+        if mention and command:
             return True
         else:
             return False
