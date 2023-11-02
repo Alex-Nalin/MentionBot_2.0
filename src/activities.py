@@ -63,11 +63,11 @@ class HelpCommandActivity(CommandActivity):
                                     </thead> \
                                     <tbody> \
                                       <tr> \
-                                        <td>/all</td> \
+                                        <td>@MentionBot /all</td> \
                                         <td>At Mention all users of the stream</td> \
                                       </tr> \
                                     <tr> \
-                                      <td>/status</td> \
+                                      <td>@MentionBot /status</td> \
                                       <td>Shows how long the Mention Bot has been running for</td> \
                                     </tr> \
                                     </tbody> \
