@@ -1,7 +1,10 @@
+import html
+
 from symphony.bdk.core.activity.command import CommandActivity, CommandContext
 from symphony.bdk.core.service.message.message_service import MessageService
 from symphony.bdk.core.service.user.user_service import UserService
 from symphony.bdk.core.service.stream.stream_service import StreamService
+from symphony.bdk.core.service.message.model import Message
 from src.audit import Audit
 from symphony.bdk.gen.agent_model.v4_message import V4Message
 from loader.config import conf
@@ -22,8 +25,6 @@ class MentionCommandActivity(CommandActivity):
         super().__init__()
 
     def matches(self, context: CommandContext) -> bool:
-        ## This is for @mention /all at the start of the string
-        # return context.text_content.startswith("@" + context.bot_display_name + " " + self.command_name)
 
         mention = False
         if ("@" + context.bot_display_name) in context.text_content:
@@ -33,15 +34,18 @@ class MentionCommandActivity(CommandActivity):
         if self.command_name in context.text_content:
             command = True
 
-        ## This allows the @mention and /all to be placed anywhere in the text
-        # if (("@" + context.bot_display_name) and self.command_name) in context.text_content:
-        if mention and command:
-            return True
-        else:
-            return False
+        return mention, command
 
     async def on_activity(self, context: CommandContext):
-        asyncio.create_task(self.actual_logic(context))
+
+        mention, command = (self.matches(context))
+
+        streamType = (await self._streams.get_stream(context.stream_id))['stream_type']['type']
+
+        if streamType == "IM" and command:
+            asyncio.create_task(self.actual_logic(context))
+        elif (streamType == "ROOM" or streamType == "MIM") and mention and command:
+            asyncio.create_task(self.actual_logic(context))
 
     async def actual_logic(self, context):
         ## Check pod source
@@ -55,21 +59,13 @@ class MentionCommandActivity(CommandActivity):
             stream_type = (await self._streams.get_stream(streamid))["stream_type"]["type"]
 
             if audit_stream != "":
-                botaudit = "Function /all called by <b>" + str(displayName) + " " + str(userid) + " </b> in " + str(streamid) + " (" + str(stream_type)
+                botaudit = "Function /all called by <b>" + str(displayName) + " " + str(userid) + " </b> in " + str(streamid) + " (" + str(stream_type) + ")"
                 await self._messages.send_message(audit_stream, f"<messageML>{botaudit}</messageML>")
-                logging.debug(botaudit)
+                logging.debug("Function /all called by " + str(displayName) + " " + str(userid) + "  in " + str(streamid) + " (" + str(stream_type) + ")")
 
             try:
-
-                splitter = False
-                thereIsMore = False
-                once = True
-                atMentionLimit = 39
-                streamid = context.stream_id
-                from_user = context.initiator.user.user_id
-                originator = "<mention uid=\"" + str(from_user) + "\"/>"
+                originator = "<mention uid=\"" + str(userid) + "\"/>"
                 botuserid = str(conf['bot']['id'])
-                mentions = ""
 
                 stream_type = (await self._streams.get_stream(streamid))["stream_type"]["type"]
 
@@ -77,96 +73,53 @@ class MentionCommandActivity(CommandActivity):
                     IMmention = ("There is only you and me, " + str(originator) + " <emoji shortcode=\"smile\" />")
                     return await self._messages.send_message(streamid, f"<messageML>{IMmention}</messageML>")
 
-                ## Room membership, also works for MIMs
-                response = await self._streams.list_room_members(streamid)
+                if str(stream_type) == "ROOM":
 
-                counter = 0
-                counterAtmentionedOnly = 0
-                totalUsersInRoom = len(response.value)
+                    await self._messages.send_message(streamid, f'''<messageML><mention uid="{str(userid)}"/>, @mention Notification sent (via blast) to all members of this room</messageML>''')
 
-                if int(totalUsersInRoom) > int(atMentionLimit):
-                    splitter = True
+                    roominfo = await self._streams.get_room_info(streamid)
+                    roomname = html.escape(roominfo['room_attributes']['name'])
 
-                for index in range(len(response.value)):
+                    blastmessage = f'''Hi, <mention uid="{str(userid)}"/> has @mentioned you in <b><i>{roomname}</i></b> <a href="https://open.symphony.com/?streamId={str(streamid).replace("-", "+").replace("_", "/")}==&#38;streamType=chatroom"><b>View message now</b></a>'''
 
-                    userId = str(response.value[index]["id"])
+                    ## Room membership, also works for MIMs
+                    response = await self._streams.list_room_members(streamid)
 
-                    # ## Check the member is not a service account/bot
-                    # user_details = await self._users.get_user_detail(userId)
-                    # accountype = user_details.user_attributes.account_type
+                    memberCount = len(response.value)
 
-                    if (str(userId) == str(from_user)) or (str(userId) == str(botuserid)):# or (str(accountype) == "SYSTEM"):
-                        #print("ignored ids")
-                        logging.debug("ignored ids")
-                    else:
-                        counter += 1
-                        counterAtmentionedOnly += 1
-                        mentions += "<mention uid=\"" + userId + "\"/> "
+                    # Assuming each member has an 'id' attribute
+                    user_ids = [member.id for member in response.value]
 
-                        if splitter and int(counter) + 1 == int(atMentionLimit):
-                            logging.debug("Displaying @mention")
-                            if once:
+                    # Set the size of each sublist
+                    sublist_size = 100  # Adjust this value based on your preference
 
-                                mention_card = "<card iconSrc =\"\" accent=\"tempo-bg-color--blue\"><header></header><body>" + mentions + "</body></card>"
-                                previous_message: V4Message = await self._messages.send_message(streamid, f"<messageML>{mention_card}</messageML>")
-                                messageid = previous_message.message_id
-                                await utils.messageidWriteToFile(self, streamid, messageid)
-                                once = False
-                                logging.debug("A")
-                                logging.debug(mention_card)
+                    # Create sublists of user IDs
+                    sublists = [user_ids[i:i + sublist_size] for i in range(0, len(user_ids), sublist_size)]
 
+                    # Iterate through the sublists
+                    for sublist in sublists:
+                        logging.debug(f"Processing sublist: {sublist}")
+
+                        usersToSend = []
+                        for user_id in sublist:
+                            logging.debug(f"Processing user ID: {user_id}")
+                            # Add your processing logic here
+
+                            if (str(user_id) == str(botuserid)) or (str(user_id) == str(userid)):
+                            #print("ignored ids")
+                                logging.debug(f"ignored id: {user_id}")
                             else:
-                                # get messageid from file
-                                messageid = await utils.getmessageid(self, streamid)
+                                usersToSend.append(user_id)
 
-                                mention_card = "<card iconSrc =\"\" accent=\"tempo-bg-color--blue\"><header></header><body>" + mentions + "</body></card>"
-                                try:
-                                    previous_message: V4Message =  await self._messages.update_message(streamid, messageid, f"<messageML>{mention_card}</messageML>")
-                                except:
-                                    previous_message: V4Message = await self._messages.send_message(streamid, f"<messageML>{mention_card}</messageML>")
-                                messageid = previous_message.message_id
-                                await utils.messageidWriteToFile(self, streamid, messageid)
-                                logging.debug("B")
-                                logging.debug(mention_card)
+                        # Create valid rooms
+                        streamToSend = []
+                        for index_streams in range(len(usersToSend)):
+                            unique_userid = (usersToSend[index_streams])
+                            createIM = (await self._streams.create_im_or_mim([int(unique_userid)]))['id']
+                            logging.debug(f"createIM: {createIM}")
+                            streamToSend.append(createIM)
 
-                            counter = 0
-                            mentions = ""
-                            thereIsMore = True
-                            once = False
-                        elif thereIsMore and (int(totalUsersInRoom) == int(counterAtmentionedOnly) + 2):
-                            logging.debug("Displaying @mention for more users")
-
-                            # get messageid from file
-                            messageid = await utils.getmessageid(self, streamid)
-
-                            mention_card = "<card iconSrc =\"\" accent=\"tempo-bg-color--blue\"><header></header><body>" + mentions + "</body></card>"
-                            try:
-                                previous_message: V4Message =  await self._messages.update_message(streamid, messageid, f"<messageML>{mention_card}</messageML>")
-                            except:
-                                previous_message: V4Message = await self._messages.send_message(streamid, f"<messageML>{mention_card}</messageML>")
-
-                            messageid = previous_message.message_id
-                            await utils.messageidWriteToFile(self, streamid, messageid)
-                            logging.debug("C")
-                            logging.debug(mention_card)
-
-                if splitter == False:
-                    logging.debug("Displaying @mention")
-
-                    mention_card = "<card iconSrc =\"\" accent=\"tempo-bg-color--blue\"><header></header><body>" + mentions + "</body></card>"
-
-                    previous_message: V4Message = await self._messages.send_message(streamid, f"<messageML>{mention_card}</messageML>")
-                    messageid = previous_message.message_id
-                    await utils.messageidWriteToFile(self, streamid, messageid)
-                    logging.debug("D")
-                    logging.debug(mention_card)
-
-                try:
-                    # get messageid from file
-                    messageid = await utils.getmessageid(self, streamid)
-                    await self._messages.update_message(streamid, messageid, f"<messageML>The room was @mentioned by {originator} (all mentions are now hidden)</messageML>")
-                except:
-                    logging.debug("Didnt Work")
+                        await self._messages.blast_message(streamToSend, Message(content=blastmessage, data=None, attachments=None))
 
             except Exception as ex:
                 logging.error("/all did not run")

@@ -19,8 +19,6 @@ class HelpCommandActivity(CommandActivity):
         super().__init__()
 
     def matches(self, context: CommandContext) -> bool:
-        ## This is for @mention /all at the start of the string
-        # return context.text_content.startswith("@" + context.bot_display_name + " " + self.command_name)
 
         mention = False
         if ("@" + context.bot_display_name) in context.text_content:
@@ -30,15 +28,18 @@ class HelpCommandActivity(CommandActivity):
         if self.command_name in context.text_content:
             command = True
 
-        ## This allows the @mention and /all to be placed anywhere in the text
-        # if (("@" + context.bot_display_name) and self.command_name) in context.text_content:
-        if mention and command:
-            return True
-        else:
-            return False
+        return mention, command
 
     async def on_activity(self, context: CommandContext):
-        asyncio.create_task(self.actual_logic(context))
+
+        mention, command = (self.matches(context))
+
+        streamType = (await self._streams.get_stream(context.stream_id))['stream_type']['type']
+
+        if streamType == "IM" and command:
+            asyncio.create_task(self.actual_logic(context))
+        elif (streamType == "ROOM" or streamType == "MIM") and mention and command:
+            asyncio.create_task(self.actual_logic(context))
 
     async def actual_logic(self, context):
         streamid = context.stream_id
@@ -47,9 +48,9 @@ class HelpCommandActivity(CommandActivity):
         stream_type = (await self._streams.get_stream(streamid))["stream_type"]["type"]
 
         if audit_stream != "":
-            botaudit = "Function /help called by <b>" + str(displayName) + " " + str(userid) + " </b> in " + str(streamid) + " (" + str(stream_type)
+            botaudit = "Function /help called by <b>" + str(displayName) + " " + str(userid) + " </b> in " + str(streamid) + " (" + str(stream_type) + ")"
             await self._messages.send_message(audit_stream, f"<messageML>{botaudit}</messageML>")
-            logging.debug(botaudit)
+            logging.debug("Function /help called by " + str(displayName) + " " + str(userid) + "  in " + str(streamid) + " (" + str(stream_type) + ")")
 
         try:
 
@@ -63,11 +64,11 @@ class HelpCommandActivity(CommandActivity):
                                     </thead> \
                                     <tbody> \
                                       <tr> \
-                                        <td>@MentionBot /all</td> \
+                                        <td>@" + context.bot_display_name + " /all</td> \
                                         <td>At Mention all users of the stream</td> \
                                       </tr> \
                                     <tr> \
-                                      <td>@MentionBot /status</td> \
+                                      <td>@" + context.bot_display_name + " /status</td> \
                                       <td>Shows how long the Mention Bot has been running for</td> \
                                     </tr> \
                                     </tbody> \
