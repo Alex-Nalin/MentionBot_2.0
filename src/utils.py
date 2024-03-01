@@ -32,3 +32,6 @@ async def getmessageid(self, streamid):
             messageid = str(MessageID[key])
             logging.debug(f"Current Message ID {messageid}")
             return messageid
+
+async def check_mentions(input_string):
+    return "@MentionBot" in input_string, "/all" in input_string

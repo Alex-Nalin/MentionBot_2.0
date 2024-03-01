@@ -17,7 +17,7 @@ audit_stream = conf.get("bot_audit")
 class MentionCommandActivity(CommandActivity):
 
     command_name = "/all"
-    isReply = False
+    isReplyForward = False
 
     def __init__(self, messages: MessageService, streams: StreamService, users: UserService):
         self._messages = messages
@@ -75,21 +75,61 @@ class MentionCommandActivity(CommandActivity):
                     IMmention = ("There is only you and me, " + str(originator) + " <emoji shortcode=\"smile\" />")
                     return await self._messages.send_message(streamid, f"<messageML>{IMmention}</messageML>")
 
-                elif str(stream_type) == "ROOM":
+                elif str(stream_type) == "ROOM" or str(stream_type) == "MIM":
 
                     ## Handing reply message:
                     try:
                         logging.debug(f"This is a reply or forward message of {context.source_event.message.parent_message_id}")
-                        isReply = True
-                    except:
-                        isReply = False
+                        isReplyForward = True
 
-                    if not isReply:
+                        parent_message_content = (await self._messages.get_message(context.source_event.message.parent_message_id))["message"]
+                        # logging.debug(f"parent_message_content {parent_message_content}")
+                        check_parent_message_content = await utils.check_mentions(parent_message_content)
+                        # logging.debug(f"1 {check_parent_message_content}")
+
+                        if str(check_parent_message_content) == "(False, False)":
+                            isReplyForward = False
+
+                        elif str(check_parent_message_content) == "(True, True)":
+                            new_message_content = (await self._messages.get_message(context.source_event.message.message_id))["message"]
+                            # logging.debug(f"new_message_content {new_message_content}")
+
+                            forwarded_message = "<br/><b>Forwarded Message:</b>Posted by"
+
+                            # Forwarded message
+                            if forwarded_message in new_message_content:
+                                isReplyForward = True
+
+                                fwd_message_content = str(new_message_content).split(forwarded_message)
+                                check_fwd_message_content = await utils.check_mentions(fwd_message_content[0])
+                                # logging.debug(f"A {check_fwd_message_content}")
+
+                                if str(check_fwd_message_content) == "(True, True)":
+                                    isReplyForward = False
+
+                            # Replied message
+                            else:
+                                new_message_content_split = str(new_message_content).split("</i>———————————")
+
+                                check_new_message_content = await utils.check_mentions(new_message_content_split[1])
+                                # logging.debug(f"2 {check_new_message_content}")
+
+                                if str(check_new_message_content) == "(True, True)":
+                                    isReplyForward = False
+
+                    except:
+                        isReplyForward = False
+
+                    if not isReplyForward:
 
                         await self._messages.send_message(streamid, f'''<messageML><mention uid="{str(userid)}"/>, @mention Notification sent (via blast) to all members of this room</messageML>''')
 
-                        roominfo = await self._streams.get_room_info(streamid)
-                        roomname = html.escape(roominfo['room_attributes']['name'])
+                        try:
+                            roominfo = await self._streams.get_room_info(streamid)
+                            roomname = html.escape(roominfo['room_attributes']['name'])
+                        except:
+                            roomname = streamid
+
 
                         # blastmessage = f'''Hi, <mention uid="{str(userid)}"/> has @mentioned you in <b><i>{roomname}</i></b> <a href="https://open.symphony.com/?streamId={str(streamid).replace("-", "+").replace("_", "/")}==&#38;streamType=chatroom"><b>View message now</b></a>'''
                         blastmessage = f'''Hi, <mention uid="{str(userid)}"/> has @mentioned you in <b><i>{roomname}</i></b> <a href="https://open.symphony.com/?streamId={str(streamid).replace("-", "%2B").replace("_", "%2F")}%3D%3D&#38;messageId={str(messageid).replace("-", "%2B").replace("_", "%2F")}%3D%3D"><b>View message now</b></a>'''
@@ -117,7 +157,7 @@ class MentionCommandActivity(CommandActivity):
                                 logging.debug(f"Processing user ID: {user_id}")
                                 # Add your processing logic here
 
-                                if (str(user_id) == str(botuserid)):# or (str(user_id) == str(userid)):
+                                if (str(user_id) == str(botuserid)) or (str(user_id) == str(userid)):
                                 #print("ignored ids")
                                     logging.debug(f"ignored id: {user_id}")
                                 else:
