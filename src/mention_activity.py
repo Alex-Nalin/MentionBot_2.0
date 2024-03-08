@@ -98,6 +98,7 @@ class MentionCommandActivity(CommandActivity):
 
                             # Forwarded message
                             if forwarded_message in new_message_content:
+                                # print("FWD")
                                 isReplyForward = True
 
                                 fwd_message_content = str(new_message_content).split(forwarded_message)
@@ -109,13 +110,23 @@ class MentionCommandActivity(CommandActivity):
 
                             # Replied message
                             else:
-                                new_message_content_split = str(new_message_content).split("</i>———————————")
+                                # print("REPLY")
+
+                                if "</i>———————————" in str(new_message_content):
+                                    new_message_content_split = str(new_message_content).split("</i>———————————")
+                                    # print(new_message_content_split)
+
+                                elif "_———————————" in str(new_message_content):
+                                    new_message_content_split = str(new_message_content).split("_———————————")
+                                    # print(new_message_content_split)
 
                                 check_new_message_content = await utils.check_mentions(new_message_content_split[1])
                                 # logging.debug(f"2 {check_new_message_content}")
 
                                 if str(check_new_message_content) == "(True, True)":
                                     isReplyForward = False
+
+
 
                     except:
                         isReplyForward = False
