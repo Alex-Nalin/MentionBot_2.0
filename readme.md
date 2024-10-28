@@ -7,9 +7,16 @@ This bot was build using the Symphony Python BDK. (QAed: 2.6.0)
 https://developers.symphony.com/symphony-developer/docs/get-started-with-python.
 
 
+**New in this release:**
+- Handling of "Message Reply" and "Forwarded Message" which may contain an @mention /all call.
+
+- The message to the members is now delivered via Symphony Blast API which all members will receive in their IMs with direct link to the original message.
+
+
+
 <b>WORKFLOW</b>
 
-Add bot to room and use @mention /all to @mention all members of the stream (Room/MIM/IM)
+Add bot to room and use @mention bot /all to @mention all members of the stream (Room/MIM/IM)
 
 ##
 
@@ -18,6 +25,8 @@ Add bot to room and use @mention /all to @mention all members of the stream (Roo
     @Mention Bot /help
     
     @Mention Bot /all
+    
+    @Mention Bot /status
 
 
 ##
