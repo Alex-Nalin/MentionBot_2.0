@@ -133,7 +133,7 @@ class MentionCommandActivity(CommandActivity):
 
                     if not isReplyForward:
 
-                        await self._messages.send_message(streamid, f'''<messageML><mention uid="{str(userid)}"/>, @mention Notification sent (via blast) to all members of this room</messageML>''')
+                        await self._messages.send_message(streamid, f'''<messageML><mention uid="{str(userid)}"/>, @mention Notification sent to all members of this room</messageML>''')
 
                         try:
                             roominfo = await self._streams.get_room_info(streamid)
@@ -141,14 +141,10 @@ class MentionCommandActivity(CommandActivity):
                         except:
                             roomname = streamid
 
-
-                        # blastmessage = f'''Hi, <mention uid="{str(userid)}"/> has @mentioned you in <b><i>{roomname}</i></b> <a href="https://open.symphony.com/?streamId={str(streamid).replace("-", "+").replace("_", "/")}==&#38;streamType=chatroom"><b>View message now</b></a>'''
-                        blastmessage = f'''Hi, <mention uid="{str(userid)}"/> has @mentioned you in <b><i>{roomname}</i></b> <a href="https://open.symphony.com/?streamId={str(streamid).replace("-", "%2B").replace("_", "%2F")}%3D%3D&#38;messageId={str(messageid).replace("-", "%2B").replace("_", "%2F")}%3D%3D"><b>View message now</b></a>'''
+                        # blastmessage = f'''Hi, <mention uid="{str(userid)}"/> has @mentioned you in <b><i>{roomname}</i></b> <a href="https://open.symphony.com/?streamId={str(streamid).replace("-", "%2B").replace("_", "%2F")}%3D%3D&#38;messageId={str(messageid).replace("-", "%2B").replace("_", "%2F")}%3D%3D"><b>View message now</b></a>'''
 
                         ## Room membership, also works for MIMs
                         response = await self._streams.list_room_members(streamid)
-
-                        memberCount = len(response.value)
 
                         # Assuming each member has an 'id' attribute
                         user_ids = [member.id for member in response.value]
@@ -159,30 +155,52 @@ class MentionCommandActivity(CommandActivity):
                         # Create sublists of user IDs
                         sublists = [user_ids[i:i + sublist_size] for i in range(0, len(user_ids), sublist_size)]
 
+                        ### Cannot use Blast to send @mention to individual users
+                        # # Iterate through the sublists
+                        # for sublist in sublists:
+                        #     logging.debug(f"Processing sublist: {sublist}")
+                        #
+                        #     usersToSend = []
+                        #     for user_id in sublist:
+                        #         logging.debug(f"Processing user ID: {user_id}")
+                        #         # Add your processing logic here
+                        #
+                        #         if (str(user_id) == str(botuserid)) or (str(user_id) == str(userid)):
+                        #         #print("ignored ids")
+                        #             logging.debug(f"ignored id: {user_id}")
+                        #         else:
+                        #             usersToSend.append(user_id)
+                        #
+                        #     # Create valid rooms
+                        #     streamToSend = []
+                        #     for index_streams in range(len(usersToSend)):
+                        #         unique_userid = (usersToSend[index_streams])
+                        #         createIM = (await self._streams.create_im_or_mim([int(unique_userid)]))['id']
+                        #         logging.debug(f"createIM: {createIM}")
+                        #         streamToSend.append(createIM)
+                        #
+                        #     await self._messages.blast_message(streamToSend, Message(content=blastmessage, data=None, attachments=None))
+
                         # Iterate through the sublists
                         for sublist in sublists:
                             logging.debug(f"Processing sublist: {sublist}")
 
-                            usersToSend = []
                             for user_id in sublist:
                                 logging.debug(f"Processing user ID: {user_id}")
-                                # Add your processing logic here
 
-                                if (str(user_id) == str(botuserid)) or (str(user_id) == str(userid)):
-                                #print("ignored ids")
+                                if str(user_id) == str(botuserid):
                                     logging.debug(f"ignored id: {user_id}")
-                                else:
-                                    usersToSend.append(user_id)
+                                    continue
 
-                            # Create valid rooms
-                            streamToSend = []
-                            for index_streams in range(len(usersToSend)):
-                                unique_userid = (usersToSend[index_streams])
-                                createIM = (await self._streams.create_im_or_mim([int(unique_userid)]))['id']
+                                # Create valid room
+                                createIM = (await self._streams.create_im_or_mim([int(user_id)]))['id']
                                 logging.debug(f"createIM: {createIM}")
-                                streamToSend.append(createIM)
 
-                            await self._messages.blast_message(streamToSend, Message(content=blastmessage, data=None, attachments=None))
+                                # Construct the message with the correct user mention
+                                blastmessage = f'''Hi, <mention uid="{str(userid)}"/> has @mentioned you, <mention uid="{str(user_id)}"/>, in <b><i>{roomname}</i></b> <a href="https://open.symphony.com/?streamId={str(streamid).replace("-", "%2B").replace("_", "%2F")}%3D%3D&#38;messageId={str(messageid).replace("-", "%2B").replace("_", "%2F")}%3D%3D"><b>View message now</b></a>'''
+
+                                # Send the message to the corresponding stream ID
+                                await self._messages.send_message(createIM, Message(content=blastmessage, data=None, attachments=None))
 
             except Exception as ex:
                 logging.error("/all did not run")
