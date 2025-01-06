@@ -1,5 +1,4 @@
 import html
-
 from symphony.bdk.core.activity.command import CommandActivity, CommandContext
 from symphony.bdk.core.service.message.message_service import MessageService
 from symphony.bdk.core.service.user.user_service import UserService
@@ -126,8 +125,6 @@ class MentionCommandActivity(CommandActivity):
                                 if str(check_new_message_content) == "(True, True)":
                                     isReplyForward = False
 
-
-
                     except:
                         isReplyForward = False
 
@@ -188,7 +185,7 @@ class MentionCommandActivity(CommandActivity):
                             for user_id in sublist:
                                 logging.debug(f"Processing user ID: {user_id}")
 
-                                if str(user_id) == str(botuserid):
+                                if str(user_id) == str(botuserid) or str(user_id) == str(userid):
                                     logging.debug(f"ignored id: {user_id}")
                                     continue
 
