@@ -1,0 +1,244 @@
+teams:
+  Messaging general Functionality:
+    members:
+    - name: Mario Orphanou
+      user_id: 71811853189292
+    - name: Jonathan Zhou
+      user_id: 71811853190698
+    - name: Shohei Shida
+      user_id: 71811853190485
+    - name: PF Vilquin
+      user_id: 71811853189793
+  Voice General Functionality:
+    members:
+    - name: Darren Coombes
+      user_id: 71811853191193
+    - name: Nitas Patthanakittikul
+      user_id: 71811853191299
+    - name: Daniel Henry
+      user_id: 71811853191139
+    - name: Nousheen Syeda
+      user_id: 71811853192117
+  Messaging Technical Architecture:
+    members:
+    - name: PF Vilquin
+      user_id: 71811853189793
+    - name: Jonathan Zhou
+      user_id: 71811853190698
+    - name: Rahul Tikoo
+      user_id: 71811853189698
+  Voice Technical Architecture:
+    members:
+    - name: Darren Coombes
+      user_id: 71811853191193
+    - name: Nitas Patthanakittikul
+      user_id: 71811853191299
+    - name: Daniel Henry
+      user_id: 71811853191139
+    - name: Nousheen Syeda
+      user_id: 71811853192117
+  Messaging Clients (inc. Mobile):
+    members:
+    - name: Maxime Joseph-Lokel
+      user_id: 71811853190733
+    - name: Valerie Legrand
+      user_id: 71811853191412
+  Voice Clients (inc. Mobile):
+    members:
+    - name: Valerie Legrand
+      user_id: 71811853191412
+    - name: Mathew Smith
+      user_id: 71811853190664
+  Legal & Corp. Governance (Only 1 team):
+    members:
+    - name: Carmen Garrido Dominguez
+      user_id: 71811853191317
+    - name: Martin Foncello
+      user_id: 71811853191431
+    - name: Benya Farlow
+      user_id: 71811853191786
+  Commercials & Pricing (Only 1 team):
+    members:
+    - name: Ryan Bertrando
+      user_id: 71811853190952
+    - name: Chris Richardson
+      user_id: 71811853191661
+    - name: Henry Lange
+      user_id: 71811853191662
+  ESG/External communications, rewards (Only 1 team):
+    members:
+    - name: Odette Maher
+      user_id: 71811853190770
+    - name: Oliver Clarke
+      user_id: 71811853190897
+  Messaging finance:
+    members:
+    - name: Emily Wong
+      user_id: 71811853191460
+    - name: Linda Chen
+      user_id: 71811853191461
+    - name: Ryoko Ralston
+      user_id: 71811853191536
+  Voice finance:
+    members:
+    - name: Emily Wong
+      user_id: 71811853191460
+    - name: Linda Chen
+      user_id: 71811853191461
+    - name: Ryoko Ralston
+      user_id: 71811853191536
+    - name: Ming Lau
+      user_id: 71811853191137
+  Messaging product:
+    members:
+    - name: Mario Orphanou
+      user_id: 71811853189292
+    - name: Rajdeep Dehal
+      user_id: 71811853191821
+    - name: Mathew Smith
+      user_id: 71811853190664
+    - name: Richard Jowett
+      user_id: 71811853189414
+    - name: Richard Ring
+      user_id: 71811853189544
+  Voice product:
+    members:
+    - name: Antoine Stephen
+      user_id: 71811853191909
+    - name: Radhika Amare
+      user_id: 71811853191511
+    - name: Thomas Kallander
+      user_id: 71811853191745
+    - name: Inderpal Chagger
+      user_id: 71811853190612
+    - name: Pierre Neu
+      user_id: 71811853190567
+  HR/DEI (Only 1 team):
+    members:
+    - name: Hannah Hutchinson
+      user_id: 71811853191772
+    - name: Emma Friedman
+      user_id: 71811853191664
+  InfoSec (Only 1 team):
+    members:
+    - name: Paul Conlon
+      user_id: 71811853191779
+    - name: Malik Okunola
+      user_id: 71811853191965
+  Site Reliability (Only 1 team):
+    members:
+    - name: Olivier Richaud
+      user_id: 71811853190666
+    - name: Vincent Sommaruga
+      user_id: 71811853190888
+    - name: Pierre Petitprez
+      user_id: 71811853190765
+    - name: Kjartan Clausen
+      user_id: 71811853191849
+  Messaging Support/SLAs:
+    members:
+    - name: Rosalina Gill
+      user_id: 71811853189340
+  Voice Support/SLAs:
+    members:
+    - name: Rosalina Gill
+      user_id: 71811853189340
+    - name: Jack Regan
+      user_id: 71811853191164
+  Messaging Rollout/Prof. Services/PM:
+    members:
+    - name: Richard Ring
+      user_id: 71811853189544
+    - name: PF Vilquin
+      user_id: 71811853189793
+    - name: Alexandre Nalin
+      user_id: 71811853189765
+    - name: Jeremy Batt
+      user_id: 71811853191584
+  Voice Rollout/Prof. Services/PM:
+    members:
+    - name: Dana Starr
+      user_id: 71811853191160
+    - name: Nousheen Syeda
+      user_id: 71811853192117
+    - name: Hugo Cardona
+      user_id: 71811853191172
+  Messaging Innovation Roadmap:
+    members:
+    - name: Mike Lynch
+      user_id: 71811853191098
+    - name: Kevin Renaudon
+      user_id: 71811853191097
+    - name: Mario Orphanou
+      user_id: 71811853189292
+    - name: Robert friend
+      user_id: 71811853191420
+    - name: Mathew Smith
+      user_id: 71811853190664
+  Voice Innovation Roadmap:
+    members:
+    - name: Antoine Stephen
+      user_id: 71811853191909
+    - name: Radhika Amare
+      user_id: 71811853191511
+    - name: Inderpal Chagger
+      user_id: 71811853190612
+    - name: Thomas Kallander
+      user_id: 71811853191745
+  Workplace/Facilities (Only 1 team):
+    members:
+    - name: Joanna Lindsay
+      user_id: 71811853189496
+  TAM (Technical Account Manager):
+    members:
+      - name: PF Vilquin
+        user_id: 71811853189793
+      - name: Rahul Tikoo
+        user_id: 71811853189698
+      - name: Shohei Shida
+        user_id: 71811853190485
+      - name: Sean Slade
+        user_id: 71811853191459
+      - name: Ariani Hadi
+        user_id: 71811853191549
+      - name: Matthieu Dupuy
+        user_id: 71811853191307
+      - name: Nizar El-Chamaa
+        user_id: 71811853191035
+      - name: Eric Berda
+        user_id: 71811853190466
+      - name: Jonathan Zhou
+        user_id: 71811853190698
+      - name: Tatyana Gutierrez
+        user_id: 71811853190558
+      - name: Bruce Wagner
+        user_id: 71811853191851
+      - name: Stewart Goldberg
+        user_id: 71811853191995
+  CS (Customer Success):
+    members:
+      - name: Liseth Lopez
+        user_id: 71811853189487
+      - name: Carla Khazen
+        user_id: 71811853191710
+      - name: Luke Rwambuya
+        user_id: 71811853191503
+      - name: Muhammad Mahmud
+        user_id: 71811853191666
+      - name: Eoin O'Connell
+        user_id: 71811853191941
+      - name: Kerry Stobbs
+        user_id: 71811853191925
+      - name: Nicholas Bellak
+        user_id: 71811853191929
+  AI Product Team:
+    members:
+    - name: Rajdeep Dehal
+      user_id: 71811853191821
+    - name: Richard Ring
+      user_id: 71811853189544
+    - name: Kevin Renaudon
+      user_id: 71811853191097
+    - name: Richard Jowett
+      user_id: 71811853189414
+

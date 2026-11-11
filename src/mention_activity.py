@@ -25,16 +25,7 @@ class MentionCommandActivity(CommandActivity):
         super().__init__()
 
     def matches(self, context: CommandContext) -> bool:
-
-        mention = False
-        if ("@" + context.bot_display_name) in context.text_content:
-            mention = True
-
-        command = False
-        if self.command_name in context.text_content:
-            command = True
-
-        return mention, command
+        return utils.match_command(context.text_content, context.bot_display_name, self.command_name)
 
     async def on_activity(self, context: CommandContext):
 
@@ -191,6 +182,7 @@ class MentionCommandActivity(CommandActivity):
 
                                 # Create valid room
                                 createIM = (await self._streams.create_im_or_mim([int(user_id)]))['id']
+                                # createIM = (await self._streams.create_im([int(user_id)]))['id'] # PBDK 2.11.0
                                 logging.debug(f"createIM: {createIM}")
 
                                 # Construct the message with the correct user mention

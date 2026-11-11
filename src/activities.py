@@ -7,6 +7,7 @@ from loader.config import conf
 from src.audit import Audit
 import logging.config
 import asyncio
+import src.utils as utils
 
 audit_stream = conf.get("bot_audit")
 
@@ -19,16 +20,7 @@ class HelpCommandActivity(CommandActivity):
         super().__init__()
 
     def matches(self, context: CommandContext) -> bool:
-
-        mention = False
-        if ("@" + context.bot_display_name) in context.text_content:
-            mention = True
-
-        command = False
-        if self.command_name in context.text_content:
-            command = True
-
-        return mention, command
+        return utils.match_command(context.text_content, context.bot_display_name, self.command_name)
 
     async def on_activity(self, context: CommandContext):
 
@@ -67,6 +59,10 @@ class HelpCommandActivity(CommandActivity):
                                         <td>@" + context.bot_display_name + " /all</td> \
                                         <td>At Mention all users of the stream</td> \
                                       </tr> \
+                                    <tr> \
+                                      <td>@" + context.bot_display_name + " /team [Team Name]</td> \
+                                      <td>At Mention specific team members</td> \
+                                    </tr> \
                                     <tr> \
                                       <td>@" + context.bot_display_name + " /status</td> \
                                       <td>Shows how long the Mention Bot has been running for</td> \
